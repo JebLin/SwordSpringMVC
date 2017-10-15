@@ -1,6 +1,7 @@
 
 在使用springmvc时，都会在web.xml中配置一个dispatchservlet，如下：
 
+
 ```
 <listener>    
     <listener-class>    
