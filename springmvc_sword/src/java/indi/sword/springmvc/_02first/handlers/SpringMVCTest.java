@@ -1,35 +1,27 @@
 package indi.sword.springmvc._02first.handlers;
 
+import indi.sword.springmvc._02first.entities.User;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+/*
 
-import indi.sword.springmvc._02first.entities.Address;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.ModelAndView;
-
-import indi.sword.springmvc._02first.entities.User;
-
+ */
 @SessionAttributes(types={String.class},value="user")
 @RequestMapping("/_02first/springmvc")
 @Controller
 public class SpringMVCTest {
 
     private static final String SUCCESS = "success";
-
 
     /*
     上面的注解会默认加一个这个玩意 @SessionAttributes
