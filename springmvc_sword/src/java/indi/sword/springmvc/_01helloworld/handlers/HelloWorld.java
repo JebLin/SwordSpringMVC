@@ -19,6 +19,6 @@ public class HelloWorld {
 	@RequestMapping("/hello")
 	public String hello(){
 		System.out.println("hello world");
-		return "helloworld/success";
+		return "jsp_helloworld/success";
 	}
 }

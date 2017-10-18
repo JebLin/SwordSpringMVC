@@ -23,5 +23,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="Tomcat 8.0.30" level="application_server_libraries" />
     <orderEntry type="library" name="springmvc" level="project" />
+    <orderEntry type="library" name="jackson-databind-2.1.5" level="project" />
+    <orderEntry type="library" name="spring-jdbc-4.0.0.RELEASE" level="project" />
   </component>
 </module>

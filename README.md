@@ -261,6 +261,10 @@ Spring MVC 借助视图解析器（ViewResolver）得到最终的视图对象（
 常用的视图解析器实现类：
     BeanNameViewResolver（解析为Bean的名字）：将逻辑视图名解析为一个Bean，Bean的id等于逻辑视图名。
     InternalResourceViewResolver(解析为URL文件）：
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
         将视图名解析为一个URL文件，一般使用该视图解析器将视图名映射为一个保存在WEB-INF目录下的程序文件（如JSP）。
         若项目中使用了 JSTL，则 SpringMVC 会自动把视图由InternalResourceView 转为 JstlView。
         若使用 JSTL 的 fmt 标签则需要在 SpringMVC 的配置文件中配置国际化资源文件。
@@ -269,6 +273,9 @@ Spring MVC 借助视图解析器（ViewResolver）得到最终的视图对象（
     程序员可以选择一种视图解析器或混用多种视图解析器。
     每个视图解析器都实现了 Ordered 接口并开放出一个 order 属性，可以通过 order 属性指定解析器的优先顺序，order 越小优先级越高。
     SpringMVC 会按视图解析器顺序的优先顺序对逻辑视图名进行解析，直到解析成功并返回视图对象，否则将抛出 ServletException 异常。
+
+
+
 
 ```
 #### 关于重定向
@@ -279,3 +286,81 @@ redirect:success.jsp：会完成一个到 success.jsp 的重定向的操作。
 forward:success.jsp：会完成一个到 success.jsp 的转发操作。
 
 ```
+#### SpringMVC 表单标签 
+```
+使用 Spring 的表单标签：
+   通过 SpringMVC 的表单标签可以实现将模型数据中的属性和 HTML 表单元素相绑定，以实现表单数据更便捷编辑和表单值的回显。
+
+form 标签：
+   一般情况下，通过 GET 请求获取表单页面，而通过POST 请求提交表单页面，因此获取表单页面和提交表单页面的 URL 是相同的。只要满足该最佳条件的契约，<form:form> 标签就无需通过 action 属性指定表单提交的 URL
+   可以通过 modelAttribute 属性指定绑定的模型属性，若没有指定该属性，则默认从 request 域对象中读取command 的表单 bean，如果该属性值也不存在，则会发生错误。
+
+   SpringMVC 提供了多个表单组件标签，如<form:input/>、<form:select/> 等，用以绑定表单字段的属性值，它们的共有属性如下：
+      - path：表单字段，对应 html 元素的 name 属性，支持级联属性
+      - htmlEscape：是否对表单值的 HTML 特殊字符进行转换，默认值为 true
+      - cssClass：表单组件对应的 CSS 样式类名
+      - cssErrorClass：表单组件的数据存在错误时，采取的 CSS样式
+
+表单标签
+   form:input、form:password、form:hidden、form:textarea：对应 HTML 表单的 text、password、hidden、textarea标签
+   form:radiobutton：单选框组件标签，当表单 bean 对应的属性值和 value 值相等时，单选框被选中.
+   form:radiobuttons：单选框组标签，用于构造多个单选框
+      - items：可以是一个 List、String[] 或 Map
+      - itemValue：指定 radio 的 value 值。可以是集合中 bean 的一个属性值
+      - itemLabel：指定 radio 的 label值
+      - delimiter：多个单选框可以通过 delimiter 指定分隔符
+
+   form:checkbox：复选框组件。用于构造单个复选框
+   form:checkboxs：用于构造多个复选框。使用方式同 form:radiobuttons 标签
+   form:select：用于构造下拉框组件。使用方式同 form:radiobuttons 标签
+   form:option：下拉框选项组件标签。使用方式同 form:radiobuttons 标签
+   form:errors：显示表单组件或数据校验所对应的错误
+      - <form:errors path= “ *” /> ：显示表单所有的错误
+      - <form:errors path= “ user*” /> ：显示所有以 user 为前缀的属性对应的错误
+      - <form:errors path= “ username” /> ：显示特定表单对象属性的错误
+
+```
+
+#### SpringMVC 处理静态资源
+```
+1. 为什么会有这样的问题:
+优雅的 REST 风格的资源URL 不希望带 .html 或 .do 等后缀。
+若将 DispatcherServlet 请求映射配置为 /,
+则 Spring MVC 将捕获 WEB 容器的所有请求, 包括静态资源的请求, SpringMVC 会将他们当成一个普通请求处理,因找不到对应处理器将导致错误。
+2. 解决: 在 SpringMVC 的配置文件中配置 <mvc:default-servlet-handler/>
+   - default-servlet-handler 将在 SpringMVC 上下文中定义一个 DefaultServletHttpRequestHandler,它会对进入 DispatcherServlet 的请求进行筛查, 如果发现是没有经过映射的请求, 就将该请求交由 WEB 应用服务器默认的Servlet 处理. 如果不是静态资源的请求，才由 DispatcherServlet 继续处理。
+   - 一般 WEB 应用服务器默认的 Servlet 的名称都是 default.若所使用的 WEB 服务器的默认 Servlet 名称不是 default，则需要通过 default-servlet-name 属性显式指定
+
+```
+
+#### 数据绑定流程
+```
+1. Spring MVC 主框架将 ServletRequest 对象及目标方法的入参实例传递给 WebDataBinderFactory 实例，以创建 DataBinder 实例对象。
+2. DataBinder 调用装配在 Spring MVC 上下文中的ConversionService 组件进行数据类型转换、数据格式化工作。将 Servlet 中的请求信息填充到入参对象中。
+3. 调用 Validator 组件对已经绑定了请求消息的入参对象进行数据合法性校验，并最终生成数据绑定结果BindingData 对象。
+4. Spring MVC 抽取 BindingResult 中的入参对象和校验错误对象，将它们赋给处理方法的响应入参。
+
+```
+
+ 
+
+
+ 
+ 
+ 
+ 
+
+#### 关于 mvc:annotation-driven
+```
+<mvc:annotation-driven /> 会自动注册RequestMappingHandlerMapping、RequestMappingHandlerAdapter 与ExceptionHandlerExceptionResolver 三个bean。
+还将提供以下支持：
+支持使用 ConversionService 实例对表单参数进行类型转换
+支持使用 @NumberFormat annotation、@DateTimeFormat注解完成数据类型的格式化
+支持使用 @Valid 注解对 JavaBean 实例进行 JSR 303 验证
+支持使用 @RequestBody 和 @ResponseBody 注解
+``` 
+
+ 
+ 
+
+ 
