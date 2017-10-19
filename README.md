@@ -1,5 +1,6 @@
 # SwordSpringMVC
 
+
 ### 内容概要
 >1.SpringMVC 概述
 2.SpringMVC 的 HelloWorld
@@ -19,9 +20,7 @@
 16.在 Spring 的环境下使用SpringMVC
 17.SpringMVC 对比 Struts2
 
-
 #### 1.SpringMVC 概述
-
 ```
 Spring 为展现层提供的基于 MVC 设计理念的优秀的Web 框架，是目前最主流的 MVC 框架之一
 Spring3.0 后全面超越 Struts2，成为最优秀的 MVC 框架
@@ -363,6 +362,105 @@ form 标签：
 ``` 
 
  
+ 
+### 数据格式化
+```
+
+对属性对象的输入/输出进行格式化，从其本质上讲依然属于 “类型转换” 的范畴。
+Spring 在格式化模块中定义了一个实现ConversionService 接口的
+FormattingConversionService 实现类，该实现类扩展了 GenericConversionService，因此它既具有类型转换的功能，又具有格式化的功能。
+FormattingConversionService 拥有一个FormattingConversionServiceFactroyBean 工厂类，后者用于在 Spring 上下文中构造前者
+
+日期格式化:
+   @DateTimeFormat 注解可对java.util.Date、java.util.Calendar、java.long.Long 时间类型进行标注：
+   - pattern 属性：类型为字符串。指定解析/格式化字段数据的模式，如：”yyyy-MM-dd hh:mm:ss”
+   - iso 属性：类型为 DateTimeFormat.ISO。指定解析/格式化字段数据的ISO模式，
+      包括四种：ISO.NONE（不使用） -- 默认、ISO.DATE(yyyy-MM-dd) 、ISO.TIME(hh:mm:ss.SSSZ)、ISO.DATE_TIME(yyyy-MM-dd hh:mm:ss.SSSZ)
+   - style 属性：字符串类型。通过样式指定日期时间的格式，由两位字符组成，
+      第一位表示日期的格式，第二位表示时间的格式：S：短日期/时间格式、M：中日期/时间格式、L：长日期/时间格式、F：完整日期/时间格式、
+   -：忽略日期或时间格式
+
+数值格式化
+   @NumberFormat 可对类似数字类型的属性进行标注，它拥有两个互斥的属性：
+   - 样式类型，包括三种：Style.NUMBER（正常数字类型）、Style.CURRENCY（货币类型）、 Style.PERCENT（百分数类型）
+   - pattern：类型为 String，自定义样式，如patter="#,###"；
+
+
+```
+
+
+###  数据校验：
+
+
+ 
+#### Spring MVC 数据校验
+```
+Spring MVC 数据校验：
+   - Spring 4.0 拥有自己独立的数据校验框架，同时支持 JSR 303 标准的校验框架。
+   - Spring 在进行数据绑定时，可同时调用校验框架完成数据校验工作。在 Spring MVC 中，可直接通过注解驱动的方式进行数据校验。
+   - Spring 的 LocalValidatorFactroyBean 既实现了 Spring 的Validator 接口，也实现了 JSR 303 的 Validator 接口。只要在 Spring 容器中定义了一个LocalValidatorFactoryBean，即可将其注入到需要数据校验的 Bean 中。
+   - Spring 本身并没有提供 JSR303 的实现，所以必须将JSR303 的实现者的 jar 包放到类路径下。
+   - <mvc:annotation-driven/> 会默认装配好一个 LocalValidatorFactoryBean，通过在处理方法的入参上标注 @valid 注解即可让 Spring MVC 在完成数据绑定后执行数据校验的工作。
+   - 在已经标注了 JSR303 注解的表单/命令对象前标注一个@Valid，Spring MVC 框架在将请求参数绑定到该入参对象后，就会调用校验框架根据注解声明的校验规则实施校验。
+   - Spring MVC 是通过对处理方法签名的规约来保存校验结果的：前一个表单/命令对象的校验结果保存到随后的入参中，这个保存校验结果的入参必须是 BindingResult 或 Errors 类型，这两个类都位于org.springframework.validation 包中。
+   - 需校验的 Bean 对象和其绑定结果对象或错误对象时成对出现的，它们之间不允许声明其他的入参
+   - Errors 接口提供了获取错误信息的方法，如 getErrorCount()或getFieldErrors(String field)
+   - BindingResult 扩展了 Errors 接口
+
+```
+
+ 
+
+ 
+#### 在目标方法中获取校验结果
+```
+在目标方法中获取校验结果
+
+   在表单/命令对象类的属性中标注校验注解，在处理方法对应的入参前添加 @Valid，Spring MVC 就会实施校验并将校验结果保存在被校验入参对象之后的 BindingResult 或 Errors 入参中。
+   常用方法：
+   - FieldError getFieldError(String field)
+   - List<FieldError> getFieldErrors()
+   - Object getFieldValue(String field)
+   - Int getErrorCount()
+
+
+```
+
+#### 在页面上显示错误
+```
+在页面上显示错误
+   - Spring MVC 除了会将表单/命令对象的校验结果保存到对应的 BindingResult 或 Errors 对象中外，还会将所有校验结果保存到 “隐含模型”
+   - 即使处理方法的签名中没有对应于表单/命令对象的结果入参，校验结果也会保存在 “隐含对象” 中。
+   - 隐含模型中的所有数据最终将通过 HttpServletRequest 的属性列表暴露给 JSP 视图对象，因此在 JSP 中可以获取错误信息
+   - 在 JSP 页面上可通过 <form:errors path=“userName”> 显示错误消息
+
+```
+
+ 
+ 
+
+ 
+#### 提示消息的国际化
+```
+提示消息的国际化
+   每个属性在数据绑定和数据校验发生错误时，都会生成一个对应的 FieldError 对象。
+   当一个属性校验失败后，校验框架会为该属性生成 4 个消息代码，这些代码以校验注解类名为前缀，结合modleAttribute、属性名及属性类型名生成多个对应的消息代码：例如 User 类中的 password 属性标准了一个 @Pattern 注解，当该属性值不满足 @Pattern 所定义的规则时, 就会产生以下 4个错误代码：
+      - Pattern.user.password
+      - Pattern.password
+      - Pattern.java.lang.String
+      - Pattern
+   当使用 Spring MVC 标签显示错误消息时， Spring MVC 会查看WEB 上下文是否装配了对应的国际化消息，如果没有，则显示默认的错误消息，否则使用国际化消息。
+
+   若数据类型转换或数据格式转换时发生错误，或该有的参数不存在，或调用处理方法时发生错误，都会在隐含模型中创建错误消息。其错误代码前缀说明如下：
+   - required：必要的参数不存在。如 @RequiredParam(“param1”)标注了一个入参，但是该参数不存在
+   - typeMismatch：在数据绑定时，发生数据类型不匹配的问题
+   - methodInvocation：Spring MVC 在调用处理方法时发生了错误注册国际化资源文件.
+   <bean id = "messageSource" class = "org.springframework.context.support.ResourceBundleMessageSource">
+      <property name="basename" value="i18n" />
+   </bean>
+
+```
+### 处理JSON : 使用HttpMessageConverter
  
 
  

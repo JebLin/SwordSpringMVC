@@ -13,8 +13,25 @@ import javax.validation.Valid;
 import java.util.Map;
 
 /*
-@InitBinder
 
+对属性对象的输入/输出进行格式化，从其本质上讲依然属于 “类型转换” 的范畴。
+Spring 在格式化模块中定义了一个实现ConversionService 接口的
+FormattingConversionService 实现类，该实现类扩展了 GenericConversionService，因此它既具有类型转换的功能，又具有格式化的功能。
+FormattingConversionService 拥有一个FormattingConversionServiceFactroyBean 工厂类，后者用于在 Spring 上下文中构造前者
+
+日期格式化:
+	@DateTimeFormat 注解可对java.util.Date、java.util.Calendar、java.long.Long 时间类型进行标注：
+	- pattern 属性：类型为字符串。指定解析/格式化字段数据的模式，如：”yyyy-MM-dd hh:mm:ss”
+	- iso 属性：类型为 DateTimeFormat.ISO。指定解析/格式化字段数据的ISO模式，
+	   包括四种：ISO.NONE（不使用） -- 默认、ISO.DATE(yyyy-MM-dd) 、ISO.TIME(hh:mm:ss.SSSZ)、ISO.DATE_TIME(yyyy-MM-dd hh:mm:ss.SSSZ)
+	- style 属性：字符串类型。通过样式指定日期时间的格式，由两位字符组成，
+	   第一位表示日期的格式，第二位表示时间的格式：S：短日期/时间格式、M：中日期/时间格式、L：长日期/时间格式、F：完整日期/时间格式、
+	-：忽略日期或时间格式
+
+数值格式化
+	@NumberFormat 可对类似数字类型的属性进行标注，它拥有两个互斥的属性：
+	- 样式类型，包括三种：Style.NUMBER（正常数字类型）、Style.CURRENCY（货币类型）、 Style.PERCENT（百分数类型）
+	- pattern：类型为 String，自定义样式，如patter="#,###"；
 
  */
 @Controller
