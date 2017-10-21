@@ -16,8 +16,16 @@
 		<property name="suffix" value=".jsp"></property>
 	</bean>
 
+
+<!--
+	ConversionService 是 Spring 类型转换体系的核心接口。
+	可以利用 ConversionServiceFactoryBean 在 Spring 的 IOC容器中定义一个 ConversionService.
+	Spring 将自动识别出 IOC 容器中的 ConversionService，并在 Bean 属性配置及Spring MVC 处理方法入参绑定等场合使用它进行数据的转换
+	可通过 ConversionServiceFactoryBean 的 converters 属性注册自定义的类型转换器
+-->
 	<!-- 在实际开发中通常都需配置 mvc:annotation-driven 标签 -->
-	<mvc:annotation-driven></mvc:annotation-driven>
+	<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+	<!--<mvc:annotation-driven></mvc:annotation-driven>-->
 
 	<!--    ↑↑↑↑ Helloworld的配置就这一些够了  ↑↑↑↑  -->
 
@@ -31,6 +39,20 @@
 
 	-->
 	<mvc:default-servlet-handler/>
+
+	<!-- 自定义ConversionService，使得前端能够传入指定格式的字符串，后端直接转换成JAVA对象 -->
+	<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<ref bean="employeeConverter"></ref>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<!-- 下面的value i18nn，系统会默认加上.properties然后去resources里面找 -->
+		<property name="basename" value="i18nn"></property>
+	</bean>
 
 
 </beans>

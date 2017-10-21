@@ -17,12 +17,13 @@ public class Employee {
 
 	@Email
 	private String email;
+
 	//1 male, 0 female
 	private Integer gender;
 	
 	private Department department;
-	
-	@Past
+
+	@Past //这now之前的时间
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date birth;
 	

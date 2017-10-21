@@ -13,7 +13,21 @@
 </head>
 <body>
 
-	<form action="testConversionServiceConverer" method="POST">
+	<!--
+		自定义ConversionService，使得前端能够传入指定格式的字符串，后端直接转换成JAVA对象
+		1.在input.jsp定义入口
+		2.编写EmployeeConverter，规定字符串输入格式
+		3.springmvc.xml配置
+			<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+			<bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+				<property name="converters">
+					<set>
+						<ref bean="employeeConverter"></ref>
+					</set>
+				</property>
+			</bean>
+	 -->
+	<form action="${pageContext.request.contextPath }/converter/testConversionServiceConverer" method="POST">
 		<!-- lastname-email-gender-department.id 例如: GG-gg@atguigu.com-0-105 -->
 		Employee: <input type="text" name="employee"/>
 		<input type="submit" value="Submit"/>
@@ -31,7 +45,8 @@
 	<br><br>
 	<form:form action="${pageContext.request.contextPath }/crud/emp" method="POST"
 		modelAttribute="employee">
-		
+
+		<!-- * 表示:页面显示所有错误信息 -->
 		<form:errors path="*"></form:errors>
 		<br>
 		
@@ -51,6 +66,7 @@
 		
 		<br>
 		Email: <form:input path="email"/>
+		<!--  表示:页面显示关于 email 的错误信息 -->
 		<form:errors path="email"></form:errors>
 		<br>
 		<% 
@@ -82,10 +98,12 @@
 			3). 错误消息 ? 如何显示, 如何把错误消息进行国际化
 		-->
 		Birth: <form:input path="birth"/>
+		<!--  表示:页面显示关于 birth 的错误信息 -->
 		<form:errors path="birth"></form:errors>
 		<br>
 		Salary: <form:input path="salary"/>
 		<br>
+
 		<input type="submit" value="Submit"/>
 	</form:form>
 	

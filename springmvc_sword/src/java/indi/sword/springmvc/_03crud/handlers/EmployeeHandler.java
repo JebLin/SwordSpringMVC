@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -85,6 +86,7 @@ public class EmployeeHandler {
 					   Map<String, Object> map){
 		System.out.println("save: " + employee);
 
+		// 打印错误信息
 		if(result.getErrorCount() > 0){
 			System.out.println("出错了!");
 
@@ -114,6 +116,12 @@ public class EmployeeHandler {
 		return "jsp_crud/list";
 	}
 
+	/**
+	 * indi.sword.springmvc._03crud.handlers.EmployeeHandler#initBinder(org.springframework.web.bind.WebDataBinder)
+	 *
+	 * 不自动绑定对象Employee中的lastName字段，也就是你在jsp填了，待会是不帮你存到数据库的
+	 * @param binder
+	 */
 //	@InitBinder
 //	public void initBinder(WebDataBinder binder){
 //		binder.setDisallowedFields("lastName");
