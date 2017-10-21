@@ -1,6 +1,5 @@
 # SwordSpringMVC
 
-
 ### 内容概要
 >1.SpringMVC 概述
 2.SpringMVC 的 HelloWorld
@@ -350,6 +349,26 @@ form 标签：
  
  
  
+```
+自定义ConversionService，使得前端能够传入指定格式的字符串，后端直接转换成JAVA对象
+ 1.在input.jsp定义入口
+ 2.编写EmployeeConverter，规定字符串输入格式
+ 3.springmvc-servlet.xml配置
+      <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+   <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+      <property name="converters">
+      <set>
+         <ref bean="employeeConverter"></ref>
+      </set>
+      </property>
+    </bean>
+
+```
+入口：
+```
+http://localhost:8083/springmvc_sword/crud/emp
+```
+
 
 #### 关于 mvc:annotation-driven
 ```
@@ -362,7 +381,26 @@ form 标签：
 ``` 
 
  
- 
+#### @initBinder 
+```
+/**
+ * indi.sword.springmvc._03crud.handlers.EmployeeHandler#initBinder(org.springframework.web.bind.WebDataBinder)
+ * 
+ * 不自动绑定对象Employee中的lastName字段，也就是你在jsp填了，待会是不帮你存到数据库的
+ * @param binder
+ */
+@InitBinder
+public void initBinder(WebDataBinder binder){
+   binder.setDisallowedFields("lastName");
+}
+
+```
+入口：
+```
+http://localhost:8083/springmvc_sword/crud/emp
+```
+
+
 ### 数据格式化
 ```
 
@@ -384,9 +422,31 @@ FormattingConversionService 拥有一个FormattingConversionServiceFactroyBean �
    @NumberFormat 可对类似数字类型的属性进行标注，它拥有两个互斥的属性：
    - 样式类型，包括三种：Style.NUMBER（正常数字类型）、Style.CURRENCY（货币类型）、 Style.PERCENT（百分数类型）
    - pattern：类型为 String，自定义样式，如patter="#,###"；
-
+```
+```
+//  Employee.java
+   @Past
+   @DateTimeFormat(pattern="yyyy-MM-dd")
+   private Date birth;
+   
+   @NumberFormat(pattern="#,###,###.#")
+   private Float salary;
 
 ```
+```
+// input.jsp
+Birth: <form:input path="birth"/>
+<form:errors path="birth"></form:errors>
+<br>
+Salary: <form:input path="salary"/>
+<br>
+
+```
+入口：
+```
+http://localhost:8083/springmvc_sword/crud/emp
+```
+
 
 
 ###  数据校验：
@@ -406,6 +466,79 @@ Spring MVC 数据校验：
    - 需校验的 Bean 对象和其绑定结果对象或错误对象时成对出现的，它们之间不允许声明其他的入参
    - Errors 接口提供了获取错误信息的方法，如 getErrorCount()或getFieldErrors(String field)
    - BindingResult 扩展了 Errors 接口
+```
+```
+<!--  
+   1. 数据类型转换
+   2. 数据类型格式化
+   3. 数据校验. 
+   1). 如何校验 ? 注解 ?
+   ①. 使用 JSR 303 验证标准
+   ②. 加入 hibernate validator 验证框架的 jar 包
+   ③. 在 SpringMVC 配置文件中添加 <mvc:annotation-driven />
+   ④. 需要在 bean 的属性上添加对应的注解
+   ⑤. 在目标方法 bean 类型的前面添加 @Valid 注解
+   2). 验证出错转向到哪一个页面 ?
+   注意: 需校验的 Bean 对象和其绑定结果对象或错误对象时成对出现的，它们之间不允许声明其他的入参
+   3). 错误消息 ? 如何显示, 如何把错误消息进行国际化
+-->
+
+```
+```
+public class Employee {
+
+   private Integer id;
+   @NotEmpty
+   private String lastName;
+
+   @Email
+   private String email;
+
+   //1 male, 0 female
+   private Integer gender;
+   
+   private Department department;
+
+   @Past //这now之前的时间
+   @DateTimeFormat(pattern="yyyy-MM-dd")
+   private Date birth;
+   
+   @NumberFormat(pattern="#,###,###.#")
+   private Float salary;
+   ...
+```
+```
+@Controller
+@RequestMapping("/crud")
+public class EmployeeHandler {
+
+   @Autowired
+   private EmployeeDao employeeDao;
+
+   @Autowired
+   private DepartmentDao departmentDao;
+
+   @RequestMapping(value="/emp", method=RequestMethod.POST)
+   public String save(@Valid Employee employee, Errors result,
+                  Map<String, Object> map){
+      System.out.println("save: " + employee);
+
+      // 打印错误信息
+      if(result.getErrorCount() > 0){
+         System.out.println("出错了!");
+
+         for(FieldError error:result.getFieldErrors()){
+            System.out.println(error.getField() + ":" + error.getDefaultMessage());
+         }
+
+         //若验证出错, 则转向定制的页面
+         map.put("departments", departmentDao.getDepartments());
+         return "jsp_crud/input";
+      }
+
+      employeeDao.save(employee);
+      return "redirect:/crud/emps";
+   }
 
 ```
 
@@ -433,9 +566,24 @@ Spring MVC 数据校验：
    - 即使处理方法的签名中没有对应于表单/命令对象的结果入参，校验结果也会保存在 “隐含对象” 中。
    - 隐含模型中的所有数据最终将通过 HttpServletRequest 的属性列表暴露给 JSP 视图对象，因此在 JSP 中可以获取错误信息
    - 在 JSP 页面上可通过 <form:errors path=“userName”> 显示错误消息
+```
+```
+<!-- * 表示:页面显示所有错误信息 -->
+<form:errors path="*"></form:errors>
+<br>
+
+<c:if test="${employee.id == null }">
+   <!-- path 属性对应 html 表单标签的 name 属性值 -->
+   LastName: <form:input path="lastName"/>
+   <form:errors path="lastName"></form:errors>
+</c:if>
+<br>
+Email: <form:input path="email"/>
+<!--  表示:页面显示关于 email 的错误信息 -->
+<form:errors path="email"></form:errors>
+<br>
 
 ```
-
  
  
 
@@ -458,9 +606,137 @@ Spring MVC 数据校验：
    <bean id = "messageSource" class = "org.springframework.context.support.ResourceBundleMessageSource">
       <property name="basename" value="i18n" />
    </bean>
+```
+操作步骤：
+```
+Springmvc-servlet.xml
+<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+   <!-- 下面的value i18nn，系统会默认加上.properties然后去resources里面找 -->
+   <property name="basename" value="i18nn"></property>
+</bean>
+```
+```
+#i18nn.properties
+NotEmpty.employee.lastName=lastName不能为空
+Email.employee.email=Email格式不合法
+Past.employee.birth=Birth需要是一个过去的时间
 
 ```
+入口：
+```
+http://localhost:8083/springmvc_sword/crud/emp
+```
+
 ### 处理JSON : 使用HttpMessageConverter
+```
+static{
+   employees = new HashMap<Integer, Employee>();
+
+   employees.put(1001, new Employee(1001, "E-AA", "aa@163.com", 1, new Department(101, "D-AA")));
+   employees.put(1002, new Employee(1002, "E-BB", "bb@163.com", 1, new Department(102, "D-BB")));
+   employees.put(1003, new Employee(1003, "E-CC", "cc@163.com", 0, new Department(103, "D-CC")));
+   employees.put(1004, new Employee(1004, "E-DD", "dd@163.com", 0, new Department(104, "D-DD")));
+   employees.put(1005, new Employee(1005, "E-EE", "ee@163.com", 1, new Department(105, "D-EE")));
+}
+
+```
+```
+@Controller
+@RequestMapping("/json")
+public class JsonTest {
+
+    @Autowired
+    private EmployeeDao employeeDao;
+
+    @ResponseBody
+    @RequestMapping("/testJson")
+    public Collection<Employee> testJson(){
+        return employeeDao.getAll();
+    }
+
+
+    @RequestMapping("/jsonIndex")
+    public String index(){
+        return "jsp_json/index";
+    }
+}
+
+```
+```
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<html>
+<head>
+    <title>Index</title>
+    <script type="text/javascript" src="${pageContext.request.contextPath }/scripts/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $("#testJson").click(function () {
+                var url = this.href;
+                var args = {};
+                $.post(url,args,function(data){
+                    for(var i = 0;i < data.length;i++){
+                        var id = data[i].id;
+                        var lastname = data[i].lastName;
+                        alert(id + ": " + lastname);
+                    }
+                });
+                return false;
+            })
+        })
+
+    </script>
+</head>
+<body>
+
+    <a href="${pageContext.request.contextPath }/json/testJson" id="testJson">List All employee</a>
+    <br><br>
+
+</body>
+</html>
+
+```
+入口：
+```
+http://localhost:8083/springmvc_sword/json/jsonIndex
+``` 
+#### HttpMessageConverter<T>
+```
+HttpMessageConverter<T>
+HttpMessageConverter<T> 是 Spring3.0 新添加的一个接口，负责将请求信息转换为一个对象（类型为 T），将对象（类型为 T）输出为响应信息
+HttpMessageConverter<T>接口定义的方法：
+- Boolean canRead(Class<?> clazz,MediaType mediaType): 指定转换器 可以读取的对象类型，即转换器是否可将请求信息转换为 clazz 类型的对象，同时指定支持 MIME 类型(text/html,applaiction/json等)
+- Boolean canWrite(Class<?> clazz,MediaType mediaType):指定转换器 是否可将 clazz 类型的对象写到响应流中，响应流支持的媒体类型 在MediaType 中定义。
+- LIst<MediaType> getSupportMediaTypes()：该转换器支持的媒体类型。
+- T read(Class<? extends T> clazz,HttpInputMessage inputMessage)： 将请求信息流转换为 T 类型的对象。
+- void write(T t,MediaType contnetType,HttpOutputMessgae outputMessage):将T类型的对象写到响应流中，同时指定相应的媒体类型为 contentType。
+
+```
+
+ 
+
+
+
+ 
+#### 使用HttpMessageConverter<T>
+```
+/*
+ * 使用 HttpMessageConverter<T>
+ *   使用 HttpMessageConverter<T> 将请求信息转化并绑定到处理方法的入参中或将响应结果转为对应类型的响应信息，Spring 提供了两种途径：
+ *      - 使用 @RequestBody / @ResponseBody  对处理方法进行标注
+ *      - 使用 HttpEntity<T> / ResponseEntity<T> 作为处理方法的入参或返回值
+ *
+ *   当控制器处理方法使用到 @RequestBody/@ResponseBody 或HttpEntity<T>/ResponseEntity<T> 时, Spring 首先根据请求头或响应头的Accept 属性选择匹配的 HttpMessageConverter, 进而根据参数类型或泛型类型的过滤得到匹配的 HttpMessageConverter, 若找不到可用的HttpMessageConverter 将报错.
+ *   @RequestBody 和 @ResponseBody 不需要成对出现
+ */
+
+```
+
+ 
+ 
+
+ 
+
  
 
  
