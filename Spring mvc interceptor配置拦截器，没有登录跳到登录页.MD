@@ -42,7 +42,8 @@ xml代码
 
 
 ```
-注：不支持<mvc:mapping path="*.do" /> 
+注：不支持  mvc:mapping path="*.do" 
+
 ```
 package com.anxin.msapweb.web.interceptor;
 
