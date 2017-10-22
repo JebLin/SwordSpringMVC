@@ -73,13 +73,20 @@
 		<property name="maxUploadSize" value="5242880"></property>
 	</bean>
 
+
+	<!--
+		通配符wildcard，注意通配符匹配不包括目录分隔符 “/”.
+		？:匹配一个字符 ，如 /admin?  将匹配 /admin1,但是不匹配 /admin 或者子路径 /admin/1
+		* :匹配一个或者多个字符，如 /admin* 将匹配 /admin /admin1 但是不匹配子路径 /admin/1
+		**:匹配路径中的零个或者多个路径 ，如 /admin** 将匹配 /admin /admin1 admin/1 admin/a/b 等等
+	-->
 	<mvc:interceptors>
 		<!-- 配置自定义拦截器 -->
 		<bean class="indi.sword.springmvc._08Intercepter.FirstIntercepter"></bean>
 
 		<!-- 配置指定拦截器 -->
 		<mvc:interceptor>
-			<mvc:mapping path="/json/"/>
+			<mvc:mapping path="/json/**"/>
 			<bean class="indi.sword.springmvc._08Intercepter.SecondIntercepter"></bean>
 		</mvc:interceptor>
 
