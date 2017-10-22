@@ -5,10 +5,12 @@ import indi.sword.springmvc._03crud.entites.Employee;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Collection;
+import java.util.Date;
 
 /*
  * 使用 HttpMessageConverter<T>
@@ -26,15 +28,25 @@ public class JsonTest {
     @Autowired
     private EmployeeDao employeeDao;
 
+    @RequestMapping("/jsonIndex")
+    public String index(){
+        return "jsp_json/index";
+    }
+
     @ResponseBody
     @RequestMapping("/testJson")
     public Collection<Employee> testJson(){
         return employeeDao.getAll();
     }
 
-
-    @RequestMapping("/jsonIndex")
-    public String index(){
-        return "jsp_json/index";
+    @ResponseBody
+    @RequestMapping("/testHttpMessageConverter")
+    public String testHttpMessageConverter(@RequestBody String body){
+        System.out.println(body);
+        return "hello world " + new Date();
     }
+
+
+
+
 }

@@ -24,8 +24,8 @@
 	可通过 ConversionServiceFactoryBean 的 converters 属性注册自定义的类型转换器
 -->
 	<!-- 在实际开发中通常都需配置 mvc:annotation-driven 标签 -->
-	<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
-	<!--<mvc:annotation-driven></mvc:annotation-driven>-->
+	<!--<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>-->
+	<mvc:annotation-driven></mvc:annotation-driven>
 
 	<!--    ↑↑↑↑ Helloworld的配置就这一些够了  ↑↑↑↑  -->
 
@@ -54,5 +54,17 @@
 		<property name="basename" value="i18nn"></property>
 	</bean>
 
+
+	<!--
+		不想要通过controller，只想直接地跳转到目标页面，这时候就可以使用mvc:view-controller标签：
+		path="/international/i18n" 就是你访问的路径（相当于RequestMapping("/international/i18n")）
+		view-name="jsp_international/i18n"是你所要的视图（如hello.jsp,相当于return "jsp_international/i18n"）
+		注意：
+		在springmvc配置文件中必须加上<mvc:annotation-driven/>
+	-->
+	<mvc:view-controller path="/success" view-name="success" />
+	<mvc:view-controller path="/international/" view-name="jsp_international/index" />
+	<mvc:view-controller path="/international/i18n" view-name="jsp_international/i18n" />
+	<mvc:view-controller path="/international/i18n2" view-name="jsp_international/i18n2" />
 
 </beans>

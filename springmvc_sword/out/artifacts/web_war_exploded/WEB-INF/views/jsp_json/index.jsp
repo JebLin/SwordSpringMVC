@@ -34,5 +34,11 @@
     <a href="${pageContext.request.contextPath }/json/testJson" id="testJson">List All employee</a>
     <br><br>
 
+    <!-- 文件上传，测试 @RequestBody 与 @ResponseBody -->
+    <form action="${pageContext.request.contextPath }/json/testHttpMessageConverter" method="POST" enctype="multipart/form-data">
+        File: <input type="file" name="file" />
+        Desc: <input type="text" name="desc" />
+        <input type="submit" value="submit" />
+    </form>
 </body>
 </html>
