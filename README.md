@@ -1,7 +1,5 @@
 # SwordSpringMVC
 
-
-
 ### 内容概要
 >1.SpringMVC 概述
 2.SpringMVC 的 HelloWorld
@@ -736,9 +734,95 @@ HttpMessageConverter<T>接口定义的方法：
 
  
  
+### 国际化
+#### 国际化概述
+```
+国际化概述：
+   - 默认情况下，SpringMVC 根据Accept-Language参数判断客户端的本地化类型
+   - 当接受到请求时，SpringMVC会在上下文中查找一个本地化解析器（LocalResolver),找到后使用它获取请求所对应的本地化类型信息。
+   - SpringMVC还允许装配一个动态更改本地化类型的拦截器，这样通过制定一个请求参数就可以控制单个请求的本地化类型。
+
+```
+#### 本地化解析器和本地化拦截器：
+```
+本地化解析器和本地化拦截器：
+    - AcceptHeaderLocaleResolver：根据 HTTP 请求头的Accept-Language 参数确定本地化类型，如果没有显式定义本地化解析器， SpringMVC 使用该解析器。
+    - CookieLocaleResolver：根据指定的 Cookie 值确定本地化类型
+    - SessionLocaleResolver：根据 Session 中特定的属性确定本地化类型
+    - LocaleChangeInterceptor：从请求参数中获取本次请求对应的本地化类型。
+```
+
+```
+@RequestMapping("/international")
+@Controller
+public class TestI18n {
+
+    @Autowired
+    private ResourceBundleMessageSource messageSource;
+
+    @RequestMapping("/testI18n")
+    public String testI18n(Locale locale){
+        String val1 = messageSource.getMessage("i18n.user",null,locale);
+        String val2 = messageSource.getMessage("i18n.password",null,locale);
+        System.out.println(val1 + " -> " + val2);
+        return "jsp_international/index";
+    }
+}
+```
+
+#### 文件上传
+```
+文件上传：
+    Spring MVC 为文件上传提供了直接的支持，这种支持是通过即插即用的 MultipartResolver 实现的。Spring 用Jakarta Commons FileUpload 技术实现了一个 MultipartResolver 实现类：CommonsMultipartResovler
+    Spring MVC 上下文中默认没有装配 MultipartResovler，因此默认情况下不能处理文件的上传工作，如果想使用 Spring 的文件上传功能，需现在上下文中配置 MultipartResolver
+
+    defaultEncoding: 必须和用户 JSP 的 pageEncoding 属性一致，以便正确解析表单的内容
+    为了让 CommonsMultipartResovler 正确工作，必须先 将 Jakarta Commons FileUpload 及 Jakarta Commons io 的类包添加到类路径下。
+
+```
+```
+
+@Controller
+@RequestMapping("/fileupload")
+public class TestFileUpload {
+
+    @RequestMapping("/index")
+    public String testFileUpload(){
+        return "jsp_fileUpload/index";
+    }
+
+    @RequestMapping("/testfileupload")
+    public String testFileUpload(@RequestParam("file") MultipartFile file,
+                                 @RequestParam("desc") String desc) throws IOException {
+        System.out.println("desc: " + desc);
+        System.out.println("originalFileName: " + file.getOriginalFilename());
+        System.out.println("inputStream: " + file.getInputStream());
+        System.out.println("contentType: " + file.getContentType());
+        System.out.println("size" + file.getSize());
+
+        return "jsp_fileUpload/success";
+    }
+}
+```
+```
+<html>
+<head>
+    <title>Index</title>
+</head>
+<body>
+    <!-- 文件上传 -->
+    <form action="${pageContext.request.contextPath }/fileupload/testfileupload" method="POST" enctype="multipart/form-data">
+        File: <input type="file" name="file" />
+        Desc: <input type="text" name="desc" />
+        <input type="submit" value="submit" />
+    </form>
+</body>
+</html>
+
+```
+
 
  
 
  
 
- 
