@@ -13,8 +13,16 @@
 </head>
 <body>
 
-    <a href="${pageContext.request.contextPath }/exceptionHandlerExceptionResolver/test?i=10" id="test">Test exceptionHandlerExceptionResolver</a>
+    <a href="${pageContext.request.contextPath }/exceptionResolver/testExceptionHandlerExceptionResolver?i=10" id="test">Test ExceptionHandlerExceptionResolver</a>
     <br><br>
 
+    <a href="${pageContext.request.contextPath }/exceptionResolver/testResponseStatusExceptionResolver?i=10" id="test">Test ResponseStatusExceptionResolver</a>
+    <br><br>
+
+    <a href="${pageContext.request.contextPath }/exceptionResolver/testDefaultHandlerExceptionResolver?i=10" id="test">Test DefaultHandlerExceptionResolver</a>
+    <br><br>
+
+    <a href="${pageContext.request.contextPath }/exceptionResolver/testSimpleMappingExceptionResolver?i=10" id="test">Test DefaultHandlerExceptionResolver</a>
+    <br><br>
 </body>
 </html>

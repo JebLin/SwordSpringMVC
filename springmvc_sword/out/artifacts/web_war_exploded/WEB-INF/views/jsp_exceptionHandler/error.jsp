@@ -12,7 +12,17 @@
 </head>
 <body>
     Error jsp
+    <br><br>
 
-    ${exceptionDetail}
+    <%--
+        异常配置在 MyControllerAdvice，
+        或者在其他当前handler的 @ExceptionHandler({ArithmeticException.class}) 的方法里面
+    --%>
+    exceptionDetail：  ${exceptionDetail}
+    <br>
+
+    exception : ${exception}
+
+
 </body>
 </html>

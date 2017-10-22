@@ -93,4 +93,13 @@
 		<!-- 配置  LocaleChangeInterceptor -->
 		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
 	</mvc:interceptors>
+	
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<!-- 表示哪个异常，跳转到哪个异常页面 -->
+				<prop key="java.lang.ArrayIndexOutOfBoundsException">jsp_exceptionHandler/error</prop>
+			</props>
+		</property>
+	</bean>
 </beans>
