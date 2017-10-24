@@ -7,8 +7,23 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
 
+	<!--
+			需要进行 Spring 整合 SpringMVC 吗？
+			还是否需要加入 Spring 的 IOC容器？
+			是否需要在 web.xml 文件中配置启动 Spring IOC 容器的 ContextLoaderListener?
+
+			1. 需要：通常情况下，类似于数据源，事务，整合其他框架都是放在Spring的配置文件中的（而不是放在SpringMVC配置中）.
+			实际上放入 Spring 的配置文件对应的 IOC 容器中还有 Service 和 Dao.
+			2. 不需要：都放在 Spring MVC 配置文件中。也可以分多个 Spring 的配置文件，然后使用 import 节点导入其他的配置文件。
+	-->
+
 	<!-- 配置自定扫描的包 -->
-	<context:component-scan base-package="indi.sword.springmvc"></context:component-scan>
+	<context:component-scan base-package="indi.sword.springmvc">
+		<context:include-filter type="annotation"
+								expression="org.springframework.stereotype.Controller"/>
+		<context:include-filter type="annotation"
+								expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+	</context:component-scan>
 
 	<!-- 配置视图解析器: 如何把 handler 方法返回值解析为实际的物理视图 -->
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -93,8 +108,11 @@
 		<!-- 配置  LocaleChangeInterceptor -->
 		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
 	</mvc:interceptors>
-	
+
+	<!-- 配置 SimpleMappingExceptionResolver -->
 	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<!-- 重新配置SimpleMappingExceptionResolver的exceptionAttribute值，用于在error.jsp中显示 -->
+		<property name="exceptionAttribute" value="ex"></property>
 		<property name="exceptionMappings">
 			<props>
 				<!-- 表示哪个异常，跳转到哪个异常页面 -->

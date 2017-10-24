@@ -19,10 +19,12 @@
         或者在其他当前handler的 @ExceptionHandler({ArithmeticException.class}) 的方法里面
     --%>
     exceptionDetail：  ${exceptionDetail}
-    <br>
+    <br><br>
 
     exception : ${exception}
+    <br><br>
 
+    ex : ${ex}
 
 </body>
 </html>

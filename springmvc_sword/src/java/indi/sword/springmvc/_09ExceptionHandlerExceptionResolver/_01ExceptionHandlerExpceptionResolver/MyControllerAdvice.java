@@ -1,4 +1,4 @@
-package indi.sword.springmvc._09ExceptionHandlerExceptionResolver;
+package indi.sword.springmvc._09ExceptionHandlerExceptionResolver._01ExceptionHandlerExpceptionResolver;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

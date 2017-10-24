@@ -18,6 +18,8 @@ public class TestExceptionHandler {
 
     @RequestMapping("/testExceptionHandlerExceptionResolver")
     public String test(@RequestParam("i") int i){
+
+
         System.out.println("result : " + (10 / i));
         return "/jsp_exceptionHandler/success";
     }
