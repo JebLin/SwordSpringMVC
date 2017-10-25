@@ -20,5 +20,4 @@ public class SpringUnionHelloWorld {
 		System.out.println(userService);
 		return "success";
 	}
-	
 }

@@ -13,7 +13,7 @@ public class SpringUnionUserService {
 		Spring 比 Spring MVC 先出来，向下兼容， Controller 可以引用 Service,但是Service不能调用Controller。
 	*/
 //	@Autowired
-//	private SpringUnionHelloWorld helloWorld;
+//	private SpringUnionHelloWorld helloWorld; // 这个地方乱引用，会出异常
 	
 	public SpringUnionUserService() {
 		System.out.println("UserService Constructor...");

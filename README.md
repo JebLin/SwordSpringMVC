@@ -1,5 +1,6 @@
 # SwordSpringMVC
 
+
 ### 内容概要
 >1.SpringMVC 概述
 2.SpringMVC 的 HelloWorld
@@ -820,9 +821,212 @@ public class TestFileUpload {
 </html>
 
 ```
+#### 自定义拦截器
+```
 
+/*
+    自定义拦截器：
+        Spring MVC也可以使用拦截器对请求进行拦截处理，用户可以自定义拦截器来实现特定的功能，自定义的拦截器必须实现HandlerInterceptor接口。
+        - preHandle()：这个方法在业务处理器处理请求之前被调用，在该方法中对用户请求 request 进行处理。
+            如果程序员决定该拦截器对请求进行拦截处理后还要调用其他的拦截器，或者是业务处理器去进行处理，则返回true；
+            如果程序员决定不需要再调用其他的组件去处理请求，则返回false。
+        - postHandle()：这个方法在业务处理器处理完请求后，但是DispatcherServlet 向客户端返回响应前被调用，在该方法中对用户请求request进行处理。
+        - afterCompletion()：这个方法在 DispatcherServlet 完全处理完请求后被调用，可以在该方法中进行一些资源清理的操作。
 
+ */
+public class FirstIntercepter implements HandlerInterceptor {
+
+    /*
+     * 该方法在目标方法之前被调用。
+     * 若返回值为true，则继续调用后续的拦截器和目标方法。
+     * 若返回值为false，则不会再调用后续的拦截器和目标方法。
+     *
+     * 可以考虑做权限，日志，事务等等等等。
+     */
+    @Override
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+        System.out.println("[FirstIntercepter]preHandle");
+        return true;
+    }
+
+    /*
+     *  调用目标方法之后，但渲染视图之前。
+     *  可以对请求域中的属性或视图做出修改。
+     */
+    @Override
+    public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
+        System.out.println("[FirstIntercepter]postHandle");
+    }
+
+    /*
+     *  渲染视图之后调用。
+     *  可以对请求域中的属性或视图做出修改。
+     */
+    @Override
+    public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
+        System.out.println("[FirstIntercepter]afterCompletion");
+    }
+}
+```
+springmvc-serlver.xml
+```
+<mvc:interceptors>
+   <!-- 配置自定义拦截器 -->
+   <bean class="indi.sword.springmvc._08Intercepter.FirstIntercepter"></bean>
+
+   <!-- 配置指定拦截器 -->
+   <mvc:interceptor>
+      <!--
+         通配符wildcard，注意通配符匹配不包括目录分隔符 “/”.
+         ？:匹配一个字符 ，如 /admin?  将匹配 /admin1,但是不匹配 /admin 或者子路径 /admin/1
+         * :匹配一个或者多个字符，如 /admin* 将匹配 /admin /admin1 但是不匹配子路径 /admin/1
+         **:匹配路径中的零个或者多个路径 ，如 /admin** 将匹配 /admin /admin1 admin/1 admin/a/b 等等
+      -->
+      <mvc:mapping path="/json/**"/>
+      <bean class="indi.sword.springmvc._08Intercepter.SecondIntercepter"></bean>
+   </mvc:interceptor>
+
+   <!-- 配置  LocaleChangeInterceptor -->
+   <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
+</mvc:interceptors>
+
+```
+拦截器方法的执行顺序：
+
+ 
+#### 异常处理
+```
+/*
+ *  Spring MVC 通过 HandlerExceptionResolver 处理程序的异常，包括 Handler 映射、数据绑定以及目标方法执行时发生的异常。
+ *  主要讲4个 HandlerExceptionResolver 接口的实现类：
+ *      - ExceptionHandlerExceptionResolver
+ *      - ResponseStatusExceptionResolver
+ *      - DefaultHandlerExceptionResolver
+ *      - SimpleMappingExceptionResolver
+ */
+```
+具体看代码 _09ExceptionHandlerExceptionResolver
+ 
+#### Spring MVC 的运行流程
+
+ 
+#### 在Spring 环境中使用 Spring MVC
+
+ Spring 的 IOC 容器不应该扫描 Spring MVC中的 bean，对应的 Spring MVC 的IOC 容器不应该扫描 Spring 中的 bean
+
+Spring-context.xml
+```
+<!--
+    SpringMVC 的 IOC 容器中的 bean 可以来引用 Spring IOC 容器中的 bean.
+    返回来呢 ? 反之则不行. Spring IOC 容器中的 bean 却不能来引用 SpringMVC IOC 容器中的 bean!
+-->
+<context:component-scan base-package="indi.sword.springmvc._10UnionSpring">
+    <context:exclude-filter type="annotation"
+                            expression="org.springframework.stereotype.Controller"/>
+    <context:exclude-filter type="annotation"
+                            expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+</context:component-scan>
+
+```
+Springmvc-servlet.xml
+```
+<!--
+      需要进行 Spring 整合 SpringMVC 吗？
+      还是否需要加入 Spring 的 IOC容器？
+      是否需要在 web.xml 文件中配置启动 Spring IOC 容器的 ContextLoaderListener?
+
+      1. 需要：通常情况下，类似于数据源，事务，整合其他框架都是放在Spring的配置文件中的（而不是放在SpringMVC配置中）.
+      实际上放入 Spring 的配置文件对应的 IOC 容器中还有 Service 和 Dao.
+      2. 不需要：都放在 Spring MVC 配置文件中。也可以分多个 Spring 的配置文件，然后使用 import 节点导入其他的配置文件。
+-->
+
+<!-- 配置自定扫描的包 -->
+<context:component-scan base-package="indi.sword.springmvc">
+   <context:include-filter type="annotation"
+                     expression="org.springframework.stereotype.Controller"/>
+   <context:include-filter type="annotation"
+                     expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+</context:component-scan>
+
+```
+web.xml
+```
+<!-- 配置启动 Spring IOC 容器的 Listener -->
+<!-- 视频第61,最后步骤，Spring 整合 springMVC -->
+<context-param>
+   <param-name>contextConfigLocation</param-name>
+   <param-value>/WEB-INF/spring-context.xml</param-value>
+</context-param>
+<listener>
+   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+</listener>
+
+<!-- 配置 DispatcherServlet,也即Spring MVC配置 -->
+<servlet>
+   <servlet-name>springmvc</servlet-name>
+   <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+   <!-- 配置 DispatcherServlet 的一个初始化参数: 配置 SpringMVC 配置文件的位置和名称 -->
+   <!--
+      实际上也可以不通过 contextConfigLocation 来配置 SpringMVC 的配置文件, 而使用默认的.
+      默认的配置文件为: /WEB-INF/<servlet-name>-servlet.xml
+   -->
+   <!--
+   <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:springmvc.xml</param-value>
+   </init-param>
+   -->
+   <load-on-startup>1</load-on-startup>
+</servlet>
+
+<servlet-mapping>
+   <servlet-name>springmvc</servlet-name>
+   <url-pattern>/</url-pattern>
+</servlet-mapping>
+
+```
+```
+@Controller
+public class SpringUnionHelloWorld {
+
+   @Autowired
+   private SpringUnionUserService userService;
+   
+   public SpringUnionHelloWorld() {
+      System.out.println("HelloWorld Constructor...");
+   }
+   
+   @RequestMapping("/SpringUnionHelloWorld")
+   public String hello(){
+      System.out.println("success");
+      System.out.println(userService);
+      return "success";
+   }
+}
+
+```
+ ```
+@Service
+public class SpringUnionUserService {
+
+   /*
+      SpringMVC 的 IOC 容器中的 bean 可以来引用 Spring IOC 容器中的 bean.
+      返回来呢 ? 反之则不行. Spring IOC 容器中的 bean 却不能来引用 SpringMVC IOC 容器中的 bean!
+
+      Spring 比 Spring MVC 先出来，向下兼容， Controller 可以引用 Service,但是Service不能调用Controller。
+   */
+// @Autowired
+// private SpringUnionHelloWorld helloWorld; // 这个地方乱引用，会出异常
+   
+   public SpringUnionUserService() {
+      System.out.println("UserService Constructor...");
+   }
+   
+}
+
+```
+
+ 
  
 
  
-
