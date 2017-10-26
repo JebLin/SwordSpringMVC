@@ -4,6 +4,44 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	id="WebApp_ID" version="2.5">
 
+	<!-- 无关 SpringMVC ，自己加深对 Listener 的理解 -->
+	<!--
+	&lt;!&ndash; 注册针对ServletContext对象进行监听的监听器 &ndash;&gt;
+	<listener>
+		<description>MyRequestAndSessionAttributeListener监听器</description>
+		<listener-class>indi.sword.springmvc._00_listenerbase.MyServletContextListener</listener-class>
+	</listener>
+
+	&lt;!&ndash;注册针对HttpSession对象进行监听的监听器&ndash;&gt;
+	<listener>
+		<description>HttpSessionListener监听器</description>
+		<listener-class>indi.sword.springmvc._00_listenerbase.MyHttpSessionListener</listener-class>
+	</listener>
+	&lt;!&ndash; 配置HttpSession对象的销毁时机 &ndash;&gt;
+	<session-config>
+		&lt;!&ndash;配置HttpSession对象的1分钟之后销毁 &ndash;&gt;
+		<session-timeout>1</session-timeout>
+	</session-config>
+
+	&lt;!&ndash;注册针对ServletRequest对象进行监听的监听器&ndash;&gt;
+	<listener>
+		<description>ServletRequestListener监听器</description>
+		<listener-class>indi.sword.springmvc._00_listenerbase.MyServletRequestListener</listener-class>
+	</listener>
+
+-->
+<!--
+	<listener>
+		<description>MyServletContextAttributeListener监听器</description>
+		<listener-class>indi.sword.springmvc._00_listenerbase.MyServletContextAttributeListener</listener-class>
+	</listener>
+	<listener>
+	    <description>MyRequestAndSessionAttributeListener监听器</description>
+	    <listener-class>indi.sword.springmvc._00_listenerbase.MyRequestAndSessionAttributeListener</listener-class>
+    </listener>
+-->
+	<!--    ↑↑↑↑ 上面关于Listener的测试 可以删掉  ↑↑↑↑  -->
+
 	<!-- 配置启动 Spring IOC 容器的 Listener -->
 	<!-- 视频第61,最后步骤，Spring 整合 springMVC -->
 	<context-param>

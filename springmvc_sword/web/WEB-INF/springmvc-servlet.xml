@@ -81,6 +81,9 @@
 	<mvc:view-controller path="/international/" view-name="jsp_international/index" />
 	<mvc:view-controller path="/international/i18n" view-name="jsp_international/i18n" />
 	<mvc:view-controller path="/international/i18n2" view-name="jsp_international/i18n2" />
+	<mvc:view-controller path="/listener/servletContextAttributeListenerTest" view-name="jsp_listener/ServletContextAttributeListenerTest" />
+	<mvc:view-controller path="/listener/RequestAndSessionAttributeListenerTest" view-name="jsp_listener/RequestAndSessionAttributeListenerTest" />
+	<mvc:view-controller path="/listener/HttpSessionListenerTest" view-name="jsp_listener/HttpSessionListenerTest" />
 
 	<!-- 配置 MuitipartResoulver 用于文件上传 -->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
